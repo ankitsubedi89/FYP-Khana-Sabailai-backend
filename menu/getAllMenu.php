@@ -4,11 +4,14 @@ header("Access-Control-Allow-Origin: *");
 
 include '../connection.php';
 
+$date = date('Y-m-d H:i:s');
+
 if (isset($_POST['restaurant_id'])) {
     $resId = $_POST['restaurant_id'];
     $query = "SELECT * FROM menu where is_deleted = 0 and restaurant_id = $resId";
 } else {
-    $query = "SELECT * FROM menu where is_deleted = 0";
+    // adding date condition to fetch only todays menu
+    $query = "SELECT * FROM menu where is_deleted = 0 and DATEDIFF(date, current_timestamp()) = 0";
 }
 
 if ($result = mysqli_query($connect, $query)) {

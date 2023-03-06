@@ -5,7 +5,7 @@ include '../connection.php';
 
 if (isset($_POST['user_id'])) {
     $user_id = $_POST['user_id'];
-    $sql = "SELECT o.*, r.name as restaurant_name, r.contact as restaurant_contact, r.address as restaurant_address from orders o join restaurants r on r.id = o.restaurant_id where o.user_id='$user_id' order by o.date desc";
+    $sql = "SELECT o.*, r.name as restaurant_name, r.contact as restaurant_contact, r.address as restaurant_address, u.name as user_name, u.address as user_address, u.contact as user_contact from orders o join restaurants r on r.id = o.restaurant_id join users u on o.user_id = u.id where o.user_id='$user_id' order by o.date desc";
     $result = mysqli_query($connect, $sql);
 
     $order_arr = array();

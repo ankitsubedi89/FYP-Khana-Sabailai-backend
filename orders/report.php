@@ -66,7 +66,7 @@ while ($report_row = mysqli_fetch_array($report_result)) {
 $report_array['total_sales'] = $total_sales;
 
 //get sum of total sales of each food in menu table and add to report_array
-
+$arr = [];
 $report_menu_sql = "SELECT m.food, m.image, SUM(o.quantity) as total_quantity, SUM(o.line_total) as total_sales, ord.date FROM order_details o JOIN menu m ON o.menu_id = m.id join orders ord on ord.id = o.order_id GROUP BY m.food ORDER BY total_sales DESC limit 5";
 if ($isTime) {
     $report_menu_sql = "SELECT m.food, m.image, SUM(o.quantity) as total_quantity, SUM(o.line_total) as total_sales, ord.date FROM order_details o JOIN menu m ON o.menu_id = m.id join orders ord on ord.id = o.order_id $sql GROUP BY m.food ORDER BY total_sales DESC limit 5";
@@ -90,6 +90,36 @@ while ($report_menu_row = mysqli_fetch_array($report_menu_result)) {
 }
 
 $report_array['menu'] = $arr;
+
+//group orders by restaurant_id and also fetch all the restaurant details with it
+$report_array['restaurant'] = [];
+if (!$restaurantId) {
+    $arr = [];
+    $report_restaurant_sql = "SELECT r.name, r.image, COUNT(ord.id) as total_orders, SUM(ord.total_cost) as total_sales, ord.date FROM orders ord JOIN restaurants r ON ord.restaurant_id = r.id GROUP BY ord.restaurant_id ORDER BY total_sales DESC limit 5";
+    if ($isTime) {
+        $report_restaurant_sql = "SELECT r.name, r.image, COUNT(ord.id) as total_orders, SUM(ord.total_cost) as total_sales, ord.date FROM orders ord JOIN restaurants r ON ord.restaurant_id = r.id $sql GROUP BY ord.restaurant_id ORDER BY total_sales DESC limit 5";
+    }
+
+    $report_restaurant_result = mysqli_query($connect, $report_restaurant_sql);
+
+    while ($report_restaurant_row = mysqli_fetch_array($report_restaurant_result)) {
+        $report_restaurant_name = $report_restaurant_row['name'];
+        $report_restaurant_image = $report_restaurant_row['image'];
+        $report_restaurant_total_orders = $report_restaurant_row['total_orders'];
+        $report_restaurant_total_sales = $report_restaurant_row['total_sales'];
+        $report_restaurant_date = $report_restaurant_row['date'];
+        $arr1[] = array(
+            'name' => $report_restaurant_name,
+            'image' => $report_restaurant_image,
+            'total_orders' => $report_restaurant_total_orders,
+            'total_sales' => $report_restaurant_total_sales,
+            'date' => $report_restaurant_date
+        );
+    }
+
+    $report_array['restaurant'] = $arr1;
+}
+
 $report_array['success'] = true;
 
 
